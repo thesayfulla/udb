@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "input.h"
+#include <stdbool.h>
 
 typedef struct
 {
@@ -57,10 +58,19 @@ typedef struct
     Pager *pager;
 } Table;
 
+typedef struct {
+    Table *table;
+    uint32_t row_num;
+    bool end_of_table;
+} Cursor;
+
 Table *db_open(const char *filename);
 void db_close(Table *table);
 MetaCommandResult do_meta_command(InputBuffer *input_buffer, Table *table);
 PrepareResult prepare_statement(InputBuffer *input_buffer, Statement *statement);
 ExecuteResult execute_statement(Statement *statement, Table *table);
+Cursor *table_start(Table *table);
+Cursor *table_end(Table *table);
+void cursor_advance(Cursor* cursor);
 
 #endif
