@@ -5,6 +5,11 @@
 #include "input.h"
 #include <stdbool.h>
 
+#define COLUMN_USERNAME_SIZE 32
+#define COLUMN_EMAIL_SIZE 255
+#define TABLE_MAX_PAGES 100
+#define size_of_attribute(Struct, Attribute) sizeof(((Struct *)0)->Attribute)
+
 typedef struct
 {
     uint32_t id;
@@ -49,20 +54,29 @@ typedef struct
 {
     int file_descriptor;
     uint32_t file_length;
-    void *pages[100];
+    uint32_t num_pages;
+    void *pages[TABLE_MAX_PAGES];
 } Pager;
 
 typedef struct
 {
-    uint32_t num_rows;
+    uint32_t root_page_num;
     Pager *pager;
 } Table;
 
-typedef struct {
+typedef struct
+{
     Table *table;
-    uint32_t row_num;
+    uint32_t page_num;
+    uint32_t cell_num;
     bool end_of_table;
 } Cursor;
+
+typedef enum
+{
+    NODE_INTERNAL,
+    NODE_LEAF
+} NodeType;
 
 Table *db_open(const char *filename);
 void db_close(Table *table);
@@ -71,6 +85,13 @@ PrepareResult prepare_statement(InputBuffer *input_buffer, Statement *statement)
 ExecuteResult execute_statement(Statement *statement, Table *table);
 Cursor *table_start(Table *table);
 Cursor *table_end(Table *table);
-void cursor_advance(Cursor* cursor);
+void cursor_advance(Cursor *cursor);
+uint32_t* leaf_node_num_cells(void* node);
+void* leaf_node_cell(void* node, uint32_t cell_num);
+uint32_t* leaf_node_key(void* node, uint32_t cell_num);
+void* leaf_node_value(void* node, uint32_t cell_num);
+void initialize_leaf_node(void* node);
+void *get_page(Pager *pager, uint32_t page_num);
+void serialize_row(Row *source, void *destination);
 
 #endif
