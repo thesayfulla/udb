@@ -35,7 +35,8 @@ typedef enum
 typedef enum
 {
     EXECUTE_SUCCESS,
-    EXECUTE_TABLE_FULL
+    EXECUTE_TABLE_FULL,
+    EXECUTE_DUPLICATE_KEY
 } ExecuteResult;
 
 typedef enum
@@ -93,5 +94,9 @@ void* leaf_node_value(void* node, uint32_t cell_num);
 void initialize_leaf_node(void* node);
 void *get_page(Pager *pager, uint32_t page_num);
 void serialize_row(Row *source, void *destination);
+NodeType get_node_type(void *node);
+Cursor *table_find(Table *table, uint32_t key);
+void set_node_type(void *node, NodeType type);
+Cursor *leaf_node_find(Table *table, uint32_t page_num, uint32_t key);
 
 #endif
